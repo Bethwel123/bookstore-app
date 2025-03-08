@@ -32,7 +32,7 @@ function Wishlist() {
             <Card className="h-100">
               <Card.Img 
                 variant="top" 
-                src={item.image?.replace('zoom=1', 'zoom=2')}
+                src={item.image?.replace('http://', 'https://')}
                 alt={item.title}
               />
               <Card.Body>
