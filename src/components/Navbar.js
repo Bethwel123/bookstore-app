@@ -1,15 +1,22 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Navbar, Nav, Container, Form, Button, Dropdown } from 'react-bootstrap';
-import { FaShoppingCart, FaUser, FaSearch } from 'react-icons/fa';
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Navbar,
+  Nav,
+  Container,
+  Form,
+  Button,
+  Dropdown,
+} from "react-bootstrap";
+import { FaShoppingCart, FaUser, FaSearch, FaHeart } from "react-icons/fa";
 
 function NavigationBar() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    const loggedInUser = localStorage.getItem('user');
+    const loggedInUser = localStorage.getItem("user");
     if (loggedInUser) {
       setUser(JSON.parse(loggedInUser));
     }
@@ -23,13 +30,19 @@ function NavigationBar() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
+    localStorage.removeItem("user");
     setUser(null);
-    navigate('/');
+    navigate("/");
   };
 
   return (
-    <Navbar bg="dark" variant="dark" expand="lg" sticky="top" className="shadow">
+    <Navbar
+      bg="dark"
+      variant="dark"
+      expand="lg"
+      sticky="top"
+      className="shadow"
+    >
       <Container>
         <Navbar.Brand as={Link} to="/" className="d-flex align-items-center">
           📚 BookStore
@@ -38,8 +51,12 @@ function NavigationBar() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link as={Link} to="/">Home</Nav.Link>
-            <Nav.Link as={Link} to="/books">Books</Nav.Link>
+            <Nav.Link as={Link} to="/">
+              Home
+            </Nav.Link>
+            <Nav.Link as={Link} to="/books">
+              Books
+            </Nav.Link>
           </Nav>
 
           <Form className="d-flex mx-auto" onSubmit={handleSearch}>
@@ -56,6 +73,9 @@ function NavigationBar() {
           </Form>
 
           <Nav>
+            <Nav.Link as={Link} to="/wishlist" className="me-3">
+              <FaHeart /> Wishlist
+            </Nav.Link>
             <Nav.Link as={Link} to="/cart" className="me-3">
               <FaShoppingCart /> Cart
             </Nav.Link>
@@ -67,16 +87,20 @@ function NavigationBar() {
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu>
-                  <Dropdown.Item as={Link} to="/profile">Profile</Dropdown.Item>
-                  <Dropdown.Item as={Link} to="/orders">My Orders</Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/profile">
+                    Profile
+                  </Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/orders">
+                    My Orders
+                  </Dropdown.Item>
                   <Dropdown.Divider />
                   <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             ) : (
-              <Button 
-                variant="outline-light" 
-                onClick={() => navigate('/login')}
+              <Button
+                variant="outline-light"
+                onClick={() => navigate("/login")}
               >
                 Login
               </Button>

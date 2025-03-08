@@ -453,3 +453,11 @@
   padding: 8px 16px;
   font-size: 0.9rem;
 }
+
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  transition: opacity 0.3s ease;
+}

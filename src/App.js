@@ -12,6 +12,7 @@ import NotFound from './pages/NotFound';
 import Footer from './components/Footer';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
+import Wishlist from './pages/Wishlist';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/books" element={<BookList />} />
             <Route path="/book/:id" element={<BookDetail />} />
+            <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

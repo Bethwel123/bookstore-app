@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Row, Col, Button, Spinner, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Button, Spinner, Alert, Toast } from 'react-bootstrap';
 import { FaShoppingCart, FaHeart, FaShare } from 'react-icons/fa';
 import { fetchBookById } from '../services/api';
 
@@ -9,6 +9,9 @@ function BookDetail() {
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastVariant, setToastVariant] = useState('success');
 
   useEffect(() => {
     loadBook();
@@ -25,18 +28,80 @@ function BookDetail() {
     }
   };
 
+  const showNotification = (message, variant = 'success') => {
+    setToastMessage(message);
+    setToastVariant(variant);
+    setShowToast(true);
+    
+    // Auto hide after 3 seconds
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
   const addToCart = () => {
     const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
-    const bookItem = {
+    
+    // Check if book already exists in cart
+    const existingItemIndex = cartItems.findIndex(item => item.id === book.id);
+    
+    if (existingItemIndex >= 0) {
+      // Book already in cart, increase quantity
+      cartItems[existingItemIndex].quantity += 1;
+      showNotification('Book quantity updated in cart!');
+    } else {
+      // Add new book to cart
+      const bookItem = {
+        id: book.id,
+        title: book.volumeInfo.title,
+        price: 29.99, // You can set your own price logic
+        image: book.volumeInfo.imageLinks?.thumbnail,
+        quantity: 1
+      };
+      cartItems.push(bookItem);
+      showNotification('Book added to cart!');
+    }
+    
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+  };
+
+  const addToWishlist = () => {
+    const wishlistItems = JSON.parse(localStorage.getItem('wishlist')) || [];
+    
+    // Check if book already exists in wishlist
+    const existingItem = wishlistItems.find(item => item.id === book.id);
+    
+    if (existingItem) {
+      showNotification('This book is already in your wishlist!', 'info');
+      return;
+    }
+    
+    const wishlistItem = {
       id: book.id,
       title: book.volumeInfo.title,
-      price: 29.99, // You can set your own price logic
+      authors: book.volumeInfo.authors,
       image: book.volumeInfo.imageLinks?.thumbnail,
-      quantity: 1
+      addedOn: new Date().toISOString()
     };
     
-    localStorage.setItem('cartItems', JSON.stringify([...cartItems, bookItem]));
-    alert('Book added to cart!');
+    localStorage.setItem('wishlist', JSON.stringify([...wishlistItems, wishlistItem]));
+    showNotification('Book added to wishlist!');
+  };
+
+  const shareBook = () => {
+    // Check if Web Share API is supported
+    if (navigator.share) {
+      navigator.share({
+        title: book.volumeInfo.title,
+        text: `Check out this book: ${book.volumeInfo.title} by ${book.volumeInfo.authors?.join(', ')}`,
+        url: window.location.href,
+      })
+      .then(() => showNotification('Book shared successfully!'))
+      .catch((error) => showNotification('Error sharing book', 'danger'));
+    } else {
+      // Fallback - copy link to clipboard
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => showNotification('Link copied to clipboard!'))
+        .catch(() => showNotification('Failed to copy link', 'danger'));
+    }
   };
 
   if (loading) {
@@ -59,6 +124,23 @@ function BookDetail() {
 
   return (
     <Container className="py-5">
+      {/* Toast notification */}
+      <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>
+        <Toast 
+          show={showToast} 
+          onClose={() => setShowToast(false)}
+          bg={toastVariant}
+          delay={3000}
+        >
+          <Toast.Header>
+            <strong className="me-auto">Notification</strong>
+          </Toast.Header>
+          <Toast.Body className={toastVariant === 'danger' ? 'text-white' : ''}>
+            {toastMessage}
+          </Toast.Body>
+        </Toast>
+      </div>
+      
       <Row>
         <Col md={4}>
           <div className="book-image-container">
@@ -95,11 +177,18 @@ function BookDetail() {
                 <FaShoppingCart className="me-2" />
                 Add to Cart
               </Button>
-              <Button variant="outline-danger" className="me-3">
+              <Button 
+                variant="outline-danger" 
+                className="me-3"
+                onClick={addToWishlist}
+              >
                 <FaHeart className="me-2" />
                 Add to Wishlist
               </Button>
-              <Button variant="outline-secondary">
+              <Button 
+                variant="outline-secondary"
+                onClick={shareBook}
+              >
                 <FaShare className="me-2" />
                 Share
               </Button>
